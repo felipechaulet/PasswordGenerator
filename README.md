@@ -1,11 +1,11 @@
 # PasswordGenerator
 
-**------------------------------------ UNDER DEVELOPMENT ------------------------------------**
+**----------------------------------------- UNDER DEVELOPMENT -----------------------------------------**
 
 
 Simple Python Password Generator.
 
-Allows the user to include
+Allows the user to include:
 
     - Lower case characters
     - Upper case characters
@@ -15,4 +15,4 @@ Allows the user to include
 Generates a password with the selected options
 Has a button to copy the password to the clipboard
 
-**------------------------------------ UNDER DEVELOPMENT ------------------------------------**
+**----------------------------------------- UNDER DEVELOPMENT -----------------------------------------**
