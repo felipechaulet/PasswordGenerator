@@ -132,10 +132,6 @@ class Application(Frame):
         self.generated_password.set(final_pwd)
 
 
-
-
-
-
 def main():
     root = Tk()
     root.geometry("500x300+300+300")
@@ -145,49 +141,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-# size = 10
-# has_lower_case = True
-# has_upper_case = True
-# has_digits = True
-# has_ascii_letters = True
-# has_ponctuation = True
-
-# letters = ""
-# char_count = 0
-
-# if has_lower_case:
-#     char_count += 1
-# if has_upper_case:
-#     char_count += 1
-# if has_digits:
-#     char_count += 1
-# if has_ascii_letters:
-#     char_count += 1
-# if has_ponctuation:
-#     char_count += 1
-
-# portion = size / char_count
-
-
-# if has_lower_case:
-#     letters = string.ascii_lowercase
-#     print ( ''.join(random.choice(letters) for i in range(portion)) )
-
-# if has_upper_case:
-#     letters = string.ascii_uppercase
-#     print ( ''.join(random.choice(letters) for i in range(portion)) )
-
-# if has_digits:
-#     letters = string.digits
-#     print ( ''.join(random.choice(letters) for i in range(portion)) )
-
-# if has_ascii_letters:
-#     letters = string.ascii_letters
-#     print ( ''.join(random.choice(letters) for i in range(portion)) )
-
-# if has_ponctuation:
-#     letters = string.punctuation
-#     print ( ''.join(random.choice(letters) for i in range(portion)) )
