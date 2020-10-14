@@ -1,8 +1,9 @@
 import string
 import random
 import pyperclip
-from tkinter import Tk, RIGHT, BOTH, RAISED, LEFT, X, Y, BooleanVar, StringVar, IntVar
+from tkinter import Tk, RIGHT, BOTH, RAISED, LEFT, X, Y, BooleanVar, StringVar
 from tkinter.ttk import Frame, Button, Style, Label, Checkbutton
+from secrets import choice
 
 
 class Application(Frame):
@@ -112,24 +113,20 @@ class Application(Frame):
 
     def generate_password(self):
         size = int(self.size.get())
-        generated_pwd = ""
+        alphabet = ""
 
-        if self.has_lower_case:
-            generated_pwd = generated_pwd + ''.join(random.choice(string.ascii_lowercase) for i in range(size))
-        if self.has_upper_case:
-            generated_pwd = generated_pwd + ''.join(random.choice(string.ascii_uppercase) for i in range(size))
-        if self.has_digits:
-            generated_pwd = generated_pwd + ''.join(random.choice(string.digits) for i in range(size))
-        if self.has_special_chars:
-            generated_pwd = generated_pwd + ''.join(random.choice(string.punctuation) for i in range(size))
+        if self.has_lower_case.get():
+            alphabet = alphabet + string.ascii_lowercase
+        if self.has_upper_case.get():
+            alphabet = alphabet + string.ascii_uppercase
+        if self.has_digits.get():
+            alphabet = alphabet + string.digits
+        if self.has_special_chars.get():
+            alphabet = alphabet + string.punctuation
 
-        generated_pwd = list(generated_pwd)
-        for i in range(0, 5):
-            random.shuffle(generated_pwd)
-
-        generated_pwd = ''.join(generated_pwd)
-        final_pwd = generated_pwd[0:size-1]
-        self.generated_password.set(final_pwd)
+        generated_pwd = ''.join([choice(alphabet) for i in range(size)])
+        self.generated_password.set(generated_pwd)
+        alphabet = ""
 
 
 def main():
