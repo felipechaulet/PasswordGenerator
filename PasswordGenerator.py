@@ -126,7 +126,6 @@ class Application(Frame):
 
         generated_pwd = ''.join([choice(alphabet) for i in range(size)])
         self.generated_password.set(generated_pwd)
-        alphabet = ""
 
 
 def main():
