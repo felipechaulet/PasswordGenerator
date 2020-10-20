@@ -1,7 +1,6 @@
 import string
-import random
 import pyperclip
-from tkinter import Tk, RIGHT, BOTH, RAISED, LEFT, X, Y, BooleanVar, StringVar
+from tkinter import Tk, RIGHT, BOTH, RAISED, LEFT, X, Y, BooleanVar, StringVar, Menu
 from tkinter.ttk import Frame, Button, Style, Label, Checkbutton
 from secrets import choice
 
@@ -16,8 +15,33 @@ class Application(Frame):
 
         self.master.title("Password Generator")
         self.style = Style()
-        self.style.theme_use("default")
+        self.style.theme_use("aqua")
 
+        THEMES = [
+            ("Alt", "alt"),
+            ("Aqua", "aqua"),
+            ("Clam", "clam"),
+            ("Classic", "classic"),
+            ("Default", "default")
+        ]
+
+        menubar = Menu(self.master)
+        self.master.config(menu=menubar)
+
+        file_menu = Menu(menubar)
+        file_menu.add_command(label="Exit", command=self.master.destroy)
+        menubar.add_cascade(label="File", menu=file_menu)
+
+        preferences_menu = Menu(menubar)
+        menubar.add_cascade(label="Preferences", menu=preferences_menu)
+        themes_menu = Menu(menubar)
+        preferences_menu.add_cascade(label="Theme", menu=themes_menu)
+
+        selected_theme = StringVar()
+        selected_theme.set("default")
+        for name, theme in THEMES:
+            selected_theme.set(theme)
+            themes_menu.add_radiobutton(label=name, variable=selected_theme, value=theme, command=lambda: self.change_theme(selected_theme.get()))
 
         ########## Options Panel ##########
 
@@ -84,7 +108,7 @@ class Application(Frame):
         result_label.pack(fill=BOTH, expand=True)
 
         self.generated_password = StringVar(value="")
-        value_label = Label(frame_result, textvariable=self.generated_password)
+        value_label = Label(frame_result, textvariable=self.generated_password, font=("Arial bold", 40), foreground="Blue")
         value_label.pack(fill=Y, expand=True)
 
 
@@ -126,6 +150,10 @@ class Application(Frame):
 
         generated_pwd = ''.join([choice(alphabet) for i in range(size)])
         self.generated_password.set(generated_pwd)
+
+    def change_theme(self, theme):
+        self.style.theme_use(theme)
+
 
 
 def main():
