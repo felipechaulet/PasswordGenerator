@@ -15,7 +15,7 @@ class Application(Frame):
 
         self.master.title("Password Generator")
         self.style = Style()
-        self.style.theme_use("aqua")
+        self.style.theme_use("default")
 
         THEMES = [
             ("Alt", "alt"),
