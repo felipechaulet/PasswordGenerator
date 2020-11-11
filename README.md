@@ -20,4 +20,4 @@ Notes:
 
 GUI:
 
-    ![GUI](https://github.com/felipechaulet/PasswordGenerator/blob/master/blob/main_gui.png)
+![GUI](https://github.com/felipechaulet/PasswordGenerator/blob/master/blob/main_gui.png)
