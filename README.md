@@ -17,3 +17,6 @@ Notes:
 * Python version used for development: 3.8
 * Pyperclip used to copy the password to clipboard (pip install -r requirements.txt)
 * Tested on MacOS Catalina only
+
+GUI:
+    ![GUI](https://github.com/felipechaulet/PasswordGenerator/blob/master/blob/main_gui.png)
