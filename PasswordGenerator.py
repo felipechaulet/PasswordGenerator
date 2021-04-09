@@ -99,7 +99,7 @@ class Application(Frame):
         generate_pwd_button.pack(fill=None, expand=False)
 
 
-        ########## Generate Button Panel ##########
+        ########## Password Field Panel ##########
 
         frame_result = Frame(self, relief=RAISED, borderwidth=3)
         frame_result.pack(fill=BOTH, expand=True)
