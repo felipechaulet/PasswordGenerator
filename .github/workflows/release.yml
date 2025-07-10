@@ -1,0 +1,203 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      tag_name: ${{ steps.tag.outputs.tag }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate version tag
+      id: tag
+      run: |
+        # Get the current date and time for version
+        VERSION="v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
+        echo "tag=$VERSION" >> $GITHUB_OUTPUT
+        echo "Generated version: $VERSION"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        release_name: Password Generator ${{ steps.tag.outputs.tag }}
+        body: |
+          ## Password Generator Release ${{ steps.tag.outputs.tag }}
+          
+          ### Features
+          - Modern CustomTkinter interface
+          - Cross-platform compatibility
+          - Password generation with customizable options
+          - Theme support (Light/Dark/System)
+          - One-click clipboard copy
+          
+          ### Downloads
+          - **Windows**: `PasswordGenerator-windows.exe`
+          - **macOS**: `PasswordGenerator-macos.app.zip`
+          - **Linux**: `PasswordGenerator-linux`
+          
+          ### Installation
+          Download the appropriate file for your operating system and run it directly - no Python installation required!
+          
+          Generated from commit: ${{ github.sha }}
+        draft: false
+        prerelease: false
+
+  build-windows:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build Windows executable
+      run: |
+        pyinstaller --onefile --windowed --name PasswordGenerator-windows --icon=icon.ico PasswordGenerator.py || pyinstaller --onefile --windowed --name PasswordGenerator-windows PasswordGenerator.py
+
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./dist/PasswordGenerator-windows.exe
+        asset_name: PasswordGenerator-windows.exe
+        asset_content_type: application/octet-stream
+
+  build-macos:
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        brew install python-tk
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build macOS application
+      run: |
+        pyinstaller --onefile --windowed --name PasswordGenerator-macos PasswordGenerator.py
+
+    - name: Create macOS app bundle
+      run: |
+        mkdir -p "PasswordGenerator.app/Contents/MacOS"
+        mkdir -p "PasswordGenerator.app/Contents/Resources"
+        cp dist/PasswordGenerator-macos "PasswordGenerator.app/Contents/MacOS/"
+        
+        # Create Info.plist
+        cat > "PasswordGenerator.app/Contents/Info.plist" << EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleExecutable</key>
+            <string>PasswordGenerator-macos</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.passwordgenerator.app</string>
+            <key>CFBundleName</key>
+            <string>Password Generator</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0.0</string>
+            <key>CFBundleVersion</key>
+            <string>1.0.0</string>
+        </dict>
+        </plist>
+        EOF
+        
+        # Make executable
+        chmod +x "PasswordGenerator.app/Contents/MacOS/PasswordGenerator-macos"
+        
+        # Create zip
+        zip -r PasswordGenerator-macos.app.zip PasswordGenerator.app
+
+    - name: Upload macOS Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./PasswordGenerator-macos.app.zip
+        asset_name: PasswordGenerator-macos.app.zip
+        asset_content_type: application/zip
+
+  build-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build Linux executable
+      run: |
+        pyinstaller --onefile --name PasswordGenerator-linux PasswordGenerator.py
+
+    - name: Make executable
+      run: |
+        chmod +x dist/PasswordGenerator-linux
+
+    - name: Upload Linux Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./dist/PasswordGenerator-linux
+        asset_name: PasswordGenerator-linux
+        asset_content_type: application/octet-stream
+
+  notify-completion:
+    needs: [create-release, build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify completion
+      run: |
+        echo "✅ Release ${{ needs.create-release.outputs.tag_name }} completed successfully!"
+        echo "📦 All platform builds have been uploaded to the release."
