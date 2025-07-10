@@ -117,13 +117,16 @@ class Application(ctk.CTk):
         menubar = tk.Menu(self)
         self.config(menu=menubar)
         
-        # File menu
+        # File menu (only close)
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="Generate Password", command=self.generate_password)
-        file_menu.add_command(label="Copy to Clipboard", command=self.copy_to_clipboard)
-        file_menu.add_separator()
         file_menu.add_command(label="Close", command=self.destroy)
+        
+        # Password menu
+        password_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Password", menu=password_menu)
+        password_menu.add_command(label="Generate", command=self.generate_password)
+        password_menu.add_command(label="Copy", command=self.copy_to_clipboard)
         
         # View menu for theme
         view_menu = tk.Menu(menubar, tearoff=0)
