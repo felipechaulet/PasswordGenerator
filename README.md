@@ -157,12 +157,25 @@ This project uses GitHub Actions for automated testing and releases:
   1. Creates a new GitHub release with auto-generated version
   2. Builds executable files for all platforms:
      - **Windows**: `PasswordGenerator-windows.exe`
-     - **macOS**: `PasswordGenerator-macos.app.zip` 
+     - **macOS**: `PasswordGenerator-macos.dmg` (Disk Image)
      - **Linux**: `PasswordGenerator-linux`
   3. Uploads all executables to the release
 
 ### Download Releases
 Visit the [Releases page](https://github.com/felipechaulet/PasswordGenerator/releases) to download the latest compiled version for your operating system.
+
+#### macOS Installation Notes
+If you get a "damaged" or "unidentified developer" warning on macOS:
+1. Download the `.dmg` file
+2. Right-click the `.dmg` file and select "Open" 
+3. If prompted, click "Open" in the security dialog
+4. Drag the app to your Applications folder
+5. If the app still won't open, go to System Preferences → Security & Privacy → General and click "Open Anyway"
+
+Alternatively, you can run this command in Terminal to remove the quarantine flag:
+```bash
+xattr -d com.apple.quarantine /path/to/PasswordGenerator.app
+```
 
 ### Branch Protection
 - PRs require passing status checks

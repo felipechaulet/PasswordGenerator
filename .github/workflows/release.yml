@@ -45,7 +45,7 @@ jobs:
           
           ### Downloads
           - **Windows**: `PasswordGenerator-windows.exe`
-          - **macOS**: `PasswordGenerator-macos.app.zip`
+          - **macOS**: `PasswordGenerator-macos.dmg` (Double-click to mount, then drag to Applications)
           - **Linux**: `PasswordGenerator-linux`
           
           ### Installation
@@ -109,39 +109,55 @@ jobs:
 
     - name: Build macOS application
       run: |
-        pyinstaller --onefile --windowed --name PasswordGenerator-macos PasswordGenerator.py
+        pyinstaller --onefile --windowed --name PasswordGenerator PasswordGenerator.py
 
     - name: Create macOS app bundle
       run: |
         mkdir -p "PasswordGenerator.app/Contents/MacOS"
         mkdir -p "PasswordGenerator.app/Contents/Resources"
-        cp dist/PasswordGenerator-macos "PasswordGenerator.app/Contents/MacOS/"
+        cp dist/PasswordGenerator "PasswordGenerator.app/Contents/MacOS/"
         
-        # Create Info.plist
+        # Create Info.plist with proper bundle structure
         cat > "PasswordGenerator.app/Contents/Info.plist" << EOF
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
             <key>CFBundleExecutable</key>
-            <string>PasswordGenerator-macos</string>
+            <string>PasswordGenerator</string>
             <key>CFBundleIdentifier</key>
-            <string>com.passwordgenerator.app</string>
+            <string>com.github.passwordgenerator</string>
             <key>CFBundleName</key>
+            <string>Password Generator</string>
+            <key>CFBundleDisplayName</key>
             <string>Password Generator</string>
             <key>CFBundleShortVersionString</key>
             <string>1.0.0</string>
             <key>CFBundleVersion</key>
             <string>1.0.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleSignature</key>
+            <string>????</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>10.13</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>NSRequiresAquaSystemAppearance</key>
+            <false/>
         </dict>
         </plist>
         EOF
         
         # Make executable
-        chmod +x "PasswordGenerator.app/Contents/MacOS/PasswordGenerator-macos"
+        chmod +x "PasswordGenerator.app/Contents/MacOS/PasswordGenerator"
         
-        # Create zip
-        zip -r PasswordGenerator-macos.app.zip PasswordGenerator.app
+        # Remove quarantine attributes and sign with ad-hoc signature
+        xattr -cr PasswordGenerator.app
+        codesign --force --deep --sign - PasswordGenerator.app
+        
+        # Create disk image instead of zip for better compatibility
+        hdiutil create -volname "Password Generator" -srcfolder PasswordGenerator.app -ov -format UDZO PasswordGenerator-macos.dmg
 
     - name: Upload macOS Release Asset
       uses: actions/upload-release-asset@v1
@@ -149,9 +165,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./PasswordGenerator-macos.app.zip
-        asset_name: PasswordGenerator-macos.app.zip
-        asset_content_type: application/zip
+        asset_path: ./PasswordGenerator-macos.dmg
+        asset_name: PasswordGenerator-macos.dmg
+        asset_content_type: application/octet-stream
 
   build-linux:
     needs: create-release
